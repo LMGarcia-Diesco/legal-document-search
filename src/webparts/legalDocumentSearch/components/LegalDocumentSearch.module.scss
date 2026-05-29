@@ -4,19 +4,27 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 360px;
-  padding: 16px;
-  color: "[theme:bodyText, default: #323130]";
+  min-height: 420px;
+  padding: 20px;
+  color: "[theme:bodyText, default: #242424]";
   color: var(--bodyText);
-  background: "[theme:bodyBackground, default: #ffffff]";
-  background: var(--bodyBackground);
+  background: #f7f8fb;
+  border: 1px solid #eef1f5;
+  border-radius: 10px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(220px, max-content) minmax(280px, 560px);
+  gap: 20px;
+  align-items: center;
 }
 
 .title {
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
-  line-height: 28px;
+  line-height: 30px;
 }
 
 .controls {
@@ -26,12 +34,278 @@
   align-items: center;
 }
 
-.results {
-  min-height: 260px;
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-height: 32px;
+  padding: 2px 0;
+}
+
+.breadcrumbButton {
+  height: 28px;
+  max-width: 260px;
+  overflow: hidden;
+  color: "[theme:themePrimary, default: #0f6cbd]";
+  color: var(--themePrimary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+}
+
+.breadcrumbButton:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+  color: "[theme:neutralTertiary, default: #a19f9d]";
+  color: var(--neutralTertiary);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 14px;
+  min-height: 380px;
+}
+
+.folderPanel {
+  min-height: 300px;
   max-height: 68vh;
   overflow: auto;
-  border: 1px solid "[theme:neutralLight, default: #edebe9]";
-  border-color: var(--neutralLight);
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #e7eaf0;
+  border-radius: 10px;
+}
+
+.folderPanelTitle {
+  margin: 2px 0 10px;
+  color: #4f5d6d;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.folderNode {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  margin: 1px 0;
+  padding: 6px 10px;
+  overflow: hidden;
+  color: #323130;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+}
+
+.folderNode:hover {
+  background: #f3f7fb;
+}
+
+.folderNode span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folderNode i {
+  flex: 0 0 auto;
+  color: #0f6cbd;
+}
+
+.folderNodeActive {
+  background: #eaf4ff;
+  color: #0f4f8a;
+  font-weight: 600;
+}
+
+.results {
+  min-height: 300px;
+  max-height: 68vh;
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid #e7eaf0;
+  border-radius: 10px;
+}
+
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.resultRow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.5fr) minmax(320px, 2fr) 64px;
+  gap: 18px;
+  align-items: center;
+  min-height: 76px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #edf0f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.resultRow:hover {
+  border-color: #cfe4fa;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.itemMain {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  font: inherit;
+}
+
+.itemMain:enabled {
+  cursor: pointer;
+}
+
+.itemMain:enabled .itemName {
+  color: "[theme:themePrimary, default: #0f6cbd]";
+  color: var(--themePrimary);
+}
+
+.folderIcon,
+.fileIcon,
+.wordIcon,
+.excelIcon,
+.powerPointIcon,
+.pdfIcon,
+.imageIcon,
+.archiveIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.folderIcon {
+  color: #8a6f00;
+  background: #fff4ce;
+}
+
+.fileIcon {
+  color: #0f6cbd;
+  background: #eaf4ff;
+}
+
+.wordIcon {
+  color: #185abd;
+  background: #eaf2ff;
+}
+
+.excelIcon {
+  color: #107c41;
+  background: #e7f6ec;
+}
+
+.powerPointIcon {
+  color: #c43e1c;
+  background: #fff0eb;
+}
+
+.pdfIcon {
+  color: #c50f1f;
+  background: #fde7e9;
+}
+
+.imageIcon {
+  color: #8764b8;
+  background: #f3efff;
+}
+
+.archiveIcon {
+  color: #8a6f00;
+  background: #fff8d6;
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.itemName {
+  overflow: hidden;
+  color: #242424;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemPath {
+  overflow: hidden;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  color: var(--neutralSecondary);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemMeta {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(82px, 1fr));
+  gap: 8px 14px;
+  min-width: 0;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.metaLabel {
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  color: var(--neutralSecondary);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.metaValue {
+  overflow: hidden;
+  color: #242424;
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemAction {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .status {
@@ -44,12 +318,40 @@
   height: 1px;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 900px) {
+  .header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .folderPanel {
+    max-height: 220px;
+  }
+
+  .resultRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .itemMeta {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .itemAction {
+    justify-content: flex-start;
+  }
+}
+
+@media screen and (max-width: 520px) {
   .legalDocumentSearch {
     padding: 12px;
   }
 
-  .controls {
+  .itemMeta {
     grid-template-columns: 1fr;
   }
 }

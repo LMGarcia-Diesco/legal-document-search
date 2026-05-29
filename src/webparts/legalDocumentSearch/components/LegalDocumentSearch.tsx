@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Icon } from '@fluentui/react';
 import styles from './LegalDocumentSearch.module.scss';
 import type { ILegalDocumentSearchProps } from './ILegalDocumentSearchProps';
 import { DocumentService } from '../services/DocumentService';
@@ -6,6 +7,7 @@ import { useInfiniteDocuments } from '../hooks/useInfiniteDocuments';
 import { SearchBar } from './SearchBar';
 import { SearchFilters } from './SearchFilters';
 import { DocumentResultsList } from './DocumentResultsList';
+import { IDocumentItem } from '../models/IDocumentItem';
 
 const parseAdditionalColumns = (value: string): string[] => {
   return value
@@ -14,9 +16,108 @@ const parseAdditionalColumns = (value: string): string[] => {
     .filter((column: string) => !!column);
 };
 
+interface IFolderBreadcrumbProps {
+  folderPath: string;
+  onNavigate: (folderPath: string) => void;
+}
+
+interface IFolderPanelProps {
+  currentFolderPath: string;
+  folders: IDocumentItem[];
+  searchText: string;
+  onNavigate: (folderPath: string) => void;
+  onOpenFolder: (item: IDocumentItem) => void;
+}
+
+const getNextFolderPath = (currentFolderPath: string, folderName: string): string => {
+  const currentPath = currentFolderPath.trim().replace(/^\/+|\/+$/g, '');
+  return currentPath ? `${currentPath}/${folderName}` : folderName;
+};
+
+const FolderBreadcrumb: React.FC<IFolderBreadcrumbProps> = (props: IFolderBreadcrumbProps) => {
+  const segments = props.folderPath
+    .split('/')
+    .map((segment: string) => segment.trim())
+    .filter((segment: string) => !!segment);
+
+  return (
+    <nav className={styles.breadcrumb}>
+      <button type="button" className={styles.breadcrumbButton} onClick={() => props.onNavigate('')}>
+        Documentos
+      </button>
+      {segments.map((segment: string, index: number) => {
+        const path = segments.slice(0, index + 1).join('/');
+
+        return (
+          <React.Fragment key={path}>
+            <span className={styles.breadcrumbSeparator}>/</span>
+            <button type="button" className={styles.breadcrumbButton} onClick={() => props.onNavigate(path)}>
+              {segment}
+            </button>
+          </React.Fragment>
+        );
+      })}
+    </nav>
+  );
+};
+
+const FolderPanel: React.FC<IFolderPanelProps> = (props: IFolderPanelProps) => {
+  const segments = props.currentFolderPath
+    .split('/')
+    .map((segment: string) => segment.trim())
+    .filter((segment: string) => !!segment);
+  const showCurrentFolders = !props.searchText;
+
+  return (
+    <aside className={styles.folderPanel}>
+      <div className={styles.folderPanelTitle}>Carpetas</div>
+      <button
+        type="button"
+        className={`${styles.folderNode} ${!props.currentFolderPath ? styles.folderNodeActive : ''}`}
+        onClick={() => props.onNavigate('')}
+      >
+        <Icon iconName="FabricFolder" />
+        <span>Documentos</span>
+      </button>
+      {segments.map((segment: string, index: number) => {
+        const path = segments.slice(0, index + 1).join('/');
+        const level = Math.min(index + 1, 5);
+
+        return (
+          <button
+            type="button"
+            key={path}
+            className={`${styles.folderNode} ${index === segments.length - 1 ? styles.folderNodeActive : ''}`}
+            style={{ paddingLeft: `${12 + level * 14}px` }}
+            onClick={() => props.onNavigate(path)}
+          >
+            <Icon iconName="ChevronRight" />
+            <Icon iconName="FabricFolder" />
+            <span>{segment}</span>
+          </button>
+        );
+      })}
+      {showCurrentFolders && props.folders.map((folder: IDocumentItem) => (
+        <button
+          type="button"
+          key={`${folder.path}|${folder.name}|${folder.id}`}
+          className={styles.folderNode}
+          style={{ paddingLeft: `${12 + Math.min(segments.length + 1, 5) * 14}px` }}
+          onClick={() => props.onOpenFolder(folder)}
+        >
+          <Icon iconName="ChevronRight" />
+          <Icon iconName="FabricFolder" />
+          <span>{folder.name}</span>
+        </button>
+      ))}
+    </aside>
+  );
+};
+
 const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalDocumentSearchProps) => {
   const [searchText, setSearchText] = React.useState<string>('');
   const [debouncedSearchText, setDebouncedSearchText] = React.useState<string>('');
+  const [currentFolderPath, setCurrentFolderPath] = React.useState<string>(props.folderPath || '');
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const service = React.useMemo(
@@ -27,7 +128,7 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
   const siteUrl = props.siteUrl.trim() || props.currentWebUrl;
 
   React.useEffect(() => {
-    const timeoutId: number = window.setTimeout(() => setDebouncedSearchText(searchText), 350);
+    const timeoutId: number = window.setTimeout(() => setDebouncedSearchText(searchText), 450);
     return () => window.clearTimeout(timeoutId);
   }, [searchText]);
 
@@ -42,7 +143,7 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
     siteUrl,
     driveId: props.driveId,
     libraryUrl: props.libraryUrl,
-    folderPath: props.folderPath,
+    folderPath: currentFolderPath,
     additionalColumns,
     pageSize: props.pageSize,
     searchProvider: props.searchProvider,
@@ -50,6 +151,10 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
       searchText: debouncedSearchText
     }
   });
+
+  React.useEffect(() => {
+    setCurrentFolderPath(props.folderPath || '');
+  }, [props.folderPath]);
 
   React.useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -73,19 +178,49 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
     return () => observer.disconnect();
   }, [hasMore, isLoading, loadMore]);
 
+  const handleOpenFolder = React.useCallback((item: IDocumentItem): void => {
+    if (!item.isFolder || debouncedSearchText) {
+      return;
+    }
+
+    setCurrentFolderPath(getNextFolderPath(currentFolderPath, item.name));
+  }, [currentFolderPath, debouncedSearchText]);
+
+  const handleNavigateFolder = React.useCallback((folderPath: string): void => {
+    setCurrentFolderPath(folderPath);
+  }, []);
+
+  const currentFolders = React.useMemo(() => {
+    return items.filter((item: IDocumentItem) => item.isFolder);
+  }, [items]);
+
   return (
     <section className={styles.legalDocumentSearch}>
-      <h2 className={styles.title}>Búsqueda documental</h2>
-      <div className={styles.controls}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>Búsqueda documental</h2>
         <SearchBar value={searchText} onChange={setSearchText} />
-        <SearchFilters />
       </div>
+      <SearchFilters />
+      <FolderBreadcrumb folderPath={currentFolderPath} onNavigate={handleNavigateFolder} />
       {error && <div className={styles.status}>No se pudo cargar la información.</div>}
-      <div className={styles.results} ref={scrollContainerRef}>
-        <DocumentResultsList items={items} additionalColumns={additionalColumns} />
-        {!isLoading && !error && items.length === 0 && <div className={styles.status}>No se encontraron documentos.</div>}
-        {isLoading && <div className={styles.status}>Cargando...</div>}
-        <div ref={sentinelRef} className={styles.sentinel} />
+      <div className={styles.workspace}>
+        <FolderPanel
+          currentFolderPath={currentFolderPath}
+          folders={currentFolders}
+          searchText={debouncedSearchText}
+          onNavigate={handleNavigateFolder}
+          onOpenFolder={handleOpenFolder}
+        />
+        <div className={styles.results} ref={scrollContainerRef}>
+          <DocumentResultsList
+            items={items}
+            additionalColumns={additionalColumns}
+            onOpenFolder={handleOpenFolder}
+          />
+          {!isLoading && !error && items.length === 0 && <div className={styles.status}>No se encontraron documentos.</div>}
+          {isLoading && <div className={styles.status}>Cargando...</div>}
+          <div ref={sentinelRef} className={styles.sentinel} />
+        </div>
       </div>
     </section>
   );

@@ -105,6 +105,7 @@ interface IGraphDriveItem {
   id?: string;
   name?: string;
   webUrl?: string;
+  createdDateTime?: string;
   lastModifiedDateTime?: string;
   size?: number;
   file?: {
@@ -235,6 +236,7 @@ export class DocumentService {
       'id',
       'name',
       'webUrl',
+      'createdDateTime',
       'lastModifiedDateTime',
       'lastModifiedBy',
       'parentReference',
@@ -291,8 +293,10 @@ export class DocumentService {
       'Path',
       'Filename',
       'ParentLink',
+      'Created',
       'LastModifiedTime',
       'FileExtension',
+      'Size',
       'Author',
       'EditorOWSUSER',
       ...query.additionalColumns
@@ -381,10 +385,13 @@ export class DocumentService {
       id: fallbackId,
       name,
       path: values.ParentLink || this.getParentPath(url),
+      created: values.Created || '',
       modified: values.LastModifiedTime || '',
       modifiedBy,
       fileType: values.FileExtension || '',
+      size: Number(values.Size) || undefined,
       url,
+      isFolder: false,
       additionalValues
     };
   }
@@ -407,10 +414,13 @@ export class DocumentService {
       id: fallbackId,
       name: item.name || this.getNameFromUrl(url),
       path: this.getGraphParentPath(item.parentReference?.path || url),
+      created: item.createdDateTime || '',
       modified: item.lastModifiedDateTime || '',
       modifiedBy: item.lastModifiedBy?.user?.displayName || item.lastModifiedBy?.application?.displayName || '',
       fileType: item.file ? this.getFileType(item.name || '', item.file.mimeType || '') : 'folder',
+      size: item.size,
       url,
+      isFolder: !!item.folder,
       additionalValues
     };
   }
