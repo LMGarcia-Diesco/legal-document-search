@@ -1,0 +1,55 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.legalDocumentSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 360px;
+  padding: 16px;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+  background: "[theme:bodyBackground, default: #ffffff]";
+  background: var(--bodyBackground);
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 420px) 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.results {
+  min-height: 260px;
+  max-height: 68vh;
+  overflow: auto;
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-color: var(--neutralLight);
+}
+
+.status {
+  padding: 16px;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  color: var(--neutralSecondary);
+}
+
+.sentinel {
+  height: 1px;
+}
+
+@media screen and (max-width: 640px) {
+  .legalDocumentSearch {
+    padding: 12px;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "legal-document-search-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/legalDocumentSearch/LegalDocumentSearchWebPart.js",
+          "manifest": "./src/webparts/legalDocumentSearch/LegalDocumentSearchWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "LegalDocumentSearchWebPartStrings": "lib/webparts/legalDocumentSearch/loc/{locale}.js"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "legal-document-search",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "LegalDocumentSearch",
+    "componentDescription": "Búsqueda documental Legal",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.0",
+    "sdksVersions": {},
+    "version": "1.22.1",
+    "libraryName": "legal-document-search",
+    "libraryId": "e02affb9-1e88-4b79-b264-47973bf88d6e",
+    "solutionShortDescription": "legal-document-search description",
+    "isDomainIsolated": false
+  }
+}
