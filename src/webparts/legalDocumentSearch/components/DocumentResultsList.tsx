@@ -7,6 +7,7 @@ export interface IDocumentResultsListProps {
   items: IDocumentItem[];
   additionalColumns: string[];
   onOpenFolder: (item: IDocumentItem) => void;
+  onOpenDetails: (item: IDocumentItem) => void;
 }
 
 interface IMetaProps {
@@ -14,13 +15,28 @@ interface IMetaProps {
   value?: string;
 }
 
-const formatDate = (value: string): string => {
+const formatDate = (value: string, includeTime: boolean = false): string => {
   if (!value) {
     return '';
   }
 
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const options: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric'
+  };
+
+  if (includeTime) {
+    options.hour = 'numeric';
+    options.minute = '2-digit';
+  }
+
+  return date.toLocaleString(undefined, options);
 };
 
 const formatSize = (value?: number): string => {
@@ -146,16 +162,19 @@ export const DocumentResultsList: React.FC<IDocumentResultsListProps> = (props: 
             </span>
           </button>
           <div className={styles.itemMeta}>
-            <Meta label="Modificado" value={formatDate(item.modified)} />
-            <Meta label="Por" value={item.modifiedBy} />
-            <Meta label="Tipo" value={item.fileType} />
             <Meta label="Creado" value={formatDate(item.created)} />
+            <Meta label="Tipo" value={item.fileType} />
             <Meta label="Tamaño" value={formatSize(item.size)} />
             {props.additionalColumns.map((column: string) => (
               <Meta key={column} label={column} value={item.additionalValues[column]} />
             ))}
           </div>
           <div className={styles.itemAction}>
+            {!item.isFolder && (
+              <button type="button" className={styles.detailButton} onClick={() => props.onOpenDetails(item)}>
+                Detalles
+              </button>
+            )}
             {!item.isFolder && item.url && (
               <Link href={item.url} target="_blank" rel="noreferrer">
                 Abrir

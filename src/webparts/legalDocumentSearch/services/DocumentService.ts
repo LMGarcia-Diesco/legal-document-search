@@ -1,5 +1,5 @@
 import { MSGraphClientFactory, MSGraphClientV3, SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { IDocumentItem, IDocumentPage } from '../models/IDocumentItem';
+import { IDocumentDetails, IDocumentItem, IDocumentPage } from '../models/IDocumentItem';
 import { ISearchFilters } from '../models/ISearchFilters';
 
 export type SearchProvider = 'graphDrive' | 'sharePointSearch';
@@ -153,6 +153,24 @@ export class DocumentService {
     }
 
     return this.searchWithSharePoint(query);
+  }
+
+  public async getGraphDriveItemDetails(driveId: string, itemId: string): Promise<IDocumentDetails> {
+    const cleanDriveId: string = driveId.trim();
+    const cleanItemId: string = itemId.trim();
+
+    if (!cleanDriveId || !cleanItemId) {
+      return { fields: {} };
+    }
+
+    const graphClient: MSGraphClientV3 = await this.msGraphClientFactory.getClient('3');
+    const fields: Record<string, unknown> = await graphClient
+      .api(`/drives/${cleanDriveId}/items/${cleanItemId}/listItem/fields`)
+      .get();
+
+    return {
+      fields: this.normalizeFieldValues(fields)
+    };
   }
 
   /**
@@ -383,6 +401,7 @@ export class DocumentService {
 
     return {
       id: fallbackId,
+      sourceId: url,
       name,
       path: values.ParentLink || this.getParentPath(url),
       created: values.Created || '',
@@ -412,6 +431,7 @@ export class DocumentService {
 
     return {
       id: fallbackId,
+      sourceId: item.id,
       name: item.name || this.getNameFromUrl(url),
       path: this.getGraphParentPath(item.parentReference?.path || url),
       created: item.createdDateTime || '',
@@ -573,6 +593,59 @@ export class DocumentService {
       .filter((value: string, index: number, array: string[]) => {
         return !!value && array.indexOf(value) === index;
       });
+  }
+
+  private normalizeFieldValues(fields: Record<string, unknown>): Record<string, string> {
+    const normalizedFields: Record<string, string> = {};
+    const ignoredFields: string[] = ['@odata.context', '@odata.etag'];
+
+    Object.keys(fields).forEach((key: string) => {
+      if (ignoredFields.indexOf(key) > -1 || this.isSystemField(key)) {
+        return;
+      }
+
+      const value: unknown = fields[key];
+
+      if (value === undefined || value === null || typeof value === 'object') {
+        return;
+      }
+
+      normalizedFields[key] = String(value);
+    });
+
+    return normalizedFields;
+  }
+
+  private isSystemField(fieldName: string): boolean {
+    const normalizedFieldName: string = fieldName.toLowerCase();
+    const systemPrefixes: string[] = [
+      '_',
+      'app',
+      'compliance',
+      'contenttype',
+      'file',
+      'folder',
+      'itemchild',
+      'link',
+      'parent',
+      'server',
+      'shared',
+      'sync',
+      'virus'
+    ];
+    const systemNames: string[] = [
+      'authorlookupid',
+      'created',
+      'docicon',
+      'edit',
+      'editorlookupid',
+      'filesizedisplay',
+      'id',
+      'modified'
+    ];
+
+    return systemNames.indexOf(normalizedFieldName) > -1 ||
+      systemPrefixes.some((prefix: string) => normalizedFieldName.indexOf(prefix) === 0);
   }
 
   private safeDecodeURIComponent(value: string): string {

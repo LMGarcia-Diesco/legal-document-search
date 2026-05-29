@@ -7,6 +7,7 @@ import { useInfiniteDocuments } from '../hooks/useInfiniteDocuments';
 import { SearchBar } from './SearchBar';
 import { SearchFilters } from './SearchFilters';
 import { DocumentResultsList } from './DocumentResultsList';
+import { DocumentDetailPanel } from './DocumentDetailPanel';
 import { IDocumentItem } from '../models/IDocumentItem';
 
 const parseAdditionalColumns = (value: string): string[] => {
@@ -118,6 +119,7 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
   const [searchText, setSearchText] = React.useState<string>('');
   const [debouncedSearchText, setDebouncedSearchText] = React.useState<string>('');
   const [currentFolderPath, setCurrentFolderPath] = React.useState<string>(props.folderPath || '');
+  const [selectedItem, setSelectedItem] = React.useState<IDocumentItem | undefined>();
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const service = React.useMemo(
@@ -190,6 +192,14 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
     setCurrentFolderPath(folderPath);
   }, []);
 
+  const handleOpenDetails = React.useCallback((item: IDocumentItem): void => {
+    setSelectedItem(item);
+  }, []);
+
+  const handleDismissDetails = React.useCallback((): void => {
+    setSelectedItem(undefined);
+  }, []);
+
   const currentFolders = React.useMemo(() => {
     return items.filter((item: IDocumentItem) => item.isFolder);
   }, [items]);
@@ -216,12 +226,20 @@ const LegalDocumentSearch: React.FC<ILegalDocumentSearchProps> = (props: ILegalD
             items={items}
             additionalColumns={additionalColumns}
             onOpenFolder={handleOpenFolder}
+            onOpenDetails={handleOpenDetails}
           />
           {!isLoading && !error && items.length === 0 && <div className={styles.status}>No se encontraron documentos.</div>}
           {isLoading && <div className={styles.status}>Cargando...</div>}
           <div ref={sentinelRef} className={styles.sentinel} />
         </div>
       </div>
+      <DocumentDetailPanel
+        driveId={props.driveId}
+        item={selectedItem}
+        additionalColumns={additionalColumns}
+        service={service}
+        onDismiss={handleDismissDetails}
+      />
     </section>
   );
 };

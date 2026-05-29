@@ -150,7 +150,7 @@
 
 .resultRow {
   display: grid;
-  grid-template-columns: minmax(280px, 1.5fr) minmax(320px, 2fr) 64px;
+  grid-template-columns: minmax(320px, 1fr) minmax(230px, 280px) minmax(142px, max-content);
   gap: 18px;
   align-items: center;
   min-height: 76px;
@@ -276,9 +276,11 @@
 
 .itemMeta {
   display: grid;
-  grid-template-columns: repeat(5, minmax(82px, 1fr));
-  gap: 8px 14px;
+  grid-template-columns: 112px 54px 82px;
+  gap: 8px 10px;
+  justify-content: start;
   min-width: 0;
+  max-width: 280px;
 }
 
 .metaItem {
@@ -305,7 +307,56 @@
 
 .itemAction {
   display: flex;
+  gap: 12px;
+  align-items: center;
   justify-content: flex-end;
+  min-width: 142px;
+  justify-self: end;
+}
+
+.detailButton {
+  min-width: 0;
+  height: 30px;
+  padding: 0 10px;
+  color: #0f6cbd;
+  background: #f5f9ff;
+  border: 1px solid #d8eafe;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.detailButton:hover {
+  background: #eaf4ff;
+}
+
+.detailPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.detailField {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.detailLabel {
+  color: #5f6b7a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detailValue {
+  overflow-wrap: anywhere;
+  color: #242424;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .status {
